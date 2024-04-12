@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/nulforst/ecom/cmd/api"
-	"github.com/nulforst/ecom/config"
-	"github.com/nulforst/ecom/db"
+	"github.com/nulfrost/ecom/cmd/api"
+	"github.com/nulfrost/ecom/config"
+	"github.com/nulfrost/ecom/db"
 )
 
 func main() {
