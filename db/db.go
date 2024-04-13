@@ -2,19 +2,23 @@ package db
 
 import (
 	"database/sql"
-	"log"
 
-	"github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-func NewMySQLStorage(cfg mysql.Config) (*sql.DB, error) {
-	db, err := sql.Open("mysql", cfg.FormatDSN())
+func NewSQLiteStorage(dbName string) (*sql.DB, error) {
+
+	db, err := sql.Open("sqlite3", dbName)
+	defer db.Close()
+
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	if err := db.Ping(); err != nil {
-		log.Fatal(err)
+	_, err = db.Exec("create table if not exists users (id integer not null primary key, first_name text, last_name text, email text, password text, created_at timestamp default current_timestamp not null)")
+
+	if err != nil {
+		return nil, err
 	}
 
 	return db, nil

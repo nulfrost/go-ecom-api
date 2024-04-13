@@ -1,6 +1,8 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
@@ -10,11 +12,11 @@ type UserStore interface {
 
 type User struct {
 	ID        int       `json:"id"`
-	FirstName string    `json:"firstName"`
-	LastName  string    `json:"lastName"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type RegisterUserPayload struct {
@@ -22,4 +24,9 @@ type RegisterUserPayload struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
+}
+
+type LoginUserPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
