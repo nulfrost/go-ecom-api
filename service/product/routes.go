@@ -3,6 +3,7 @@ package product
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
@@ -21,6 +22,7 @@ func NewHandler(store types.ProductStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/products", h.getProducts).Methods(http.MethodGet)
 	router.HandleFunc("/products", h.createProduct).Methods(http.MethodPost)
+	router.HandleFunc("/products/{id}", h.getProductById).Methods(http.MethodGet)
 }
 
 func (h *Handler) getProducts(w http.ResponseWriter, r *http.Request) {
@@ -63,4 +65,22 @@ func (h *Handler) createProduct(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusCreated, nil)
 
+}
+
+func (h *Handler) getProductById(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	productId := vars["id"]
+
+	id, err := strconv.Atoi(productId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	product, err := h.store.GetProductByID(id)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, product)
 }

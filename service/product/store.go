@@ -2,6 +2,7 @@ package product
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/nulfrost/ecom/types"
 )
@@ -37,7 +38,7 @@ func (s *Store) GetProducts() ([]types.Product, error) {
 func scanRowsIntoProduct(rows *sql.Rows) (*types.Product, error) {
 	product := new(types.Product)
 
-	err := rows.Scan(&product.ID, &product.Name, &product.Description, &product.Image, &product.Price, &product.Quantity, &product.CreatedAt)
+	err := rows.Scan(&product.ID, &product.Name, &product.Price, &product.Description, &product.Image, &product.Quantity, &product.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +47,24 @@ func scanRowsIntoProduct(rows *sql.Rows) (*types.Product, error) {
 }
 
 func (s *Store) GetProductByID(id int) (*types.Product, error) {
-	return nil, nil
+	rows, err := s.db.Query("select * from products where id = ?", id)
+	if err != nil {
+		return nil, err
+	}
+
+	p := new(types.Product)
+	for rows.Next() {
+		p, err = scanRowsIntoProduct(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if p.ID == 0 {
+		return nil, fmt.Errorf("product not found")
+	}
+
+	return p, nil
 }
 
 func (s *Store) CreateProduct(product types.Product) error {

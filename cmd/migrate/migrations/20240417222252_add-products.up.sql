@@ -1,6 +1,7 @@
 create table if not exists products (
     id integer not null primary key,
     name text not null,
+    price integer not null,
     description text not null,
     image text not null,
     quantity integer not null,

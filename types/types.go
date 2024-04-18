@@ -13,10 +13,11 @@ type UserStore interface {
 type ProductStore interface {
 	GetProducts() ([]Product, error)
 	CreateProduct(product Product) error
+	GetProductByID(id int) (*Product, error)
 }
 
 type Product struct {
-	ID          string    `json:"id"`
+	ID          int       `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Image       string    `json:"image"`
