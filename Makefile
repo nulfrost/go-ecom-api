@@ -4,6 +4,9 @@ build:
 test:
 	@go test -v ./...
 
+format:
+	@go fmt ./...
+
 run: build
 	@./bin/ecom
 
