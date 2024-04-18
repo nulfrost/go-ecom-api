@@ -1,12 +1,12 @@
 package user
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/nulfrost/ecom/config"
 	"github.com/nulfrost/ecom/service/auth"
 	"github.com/nulfrost/ecom/types"
 	"github.com/nulfrost/ecom/utils"
@@ -28,23 +28,42 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	// get the login payload
 	var payload types.LoginUserPayload
+
 	// parse the json
-	if err := utils.ParseJSON(r, payload); err != nil {
+	if err := utils.ParseJSON(r, &payload); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
+		return
 	}
+
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
 	// check if the user even exists
 	u, err := h.store.GetUserByEmail(payload.Email)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
+		return
 	}
 	// if they do, check to make sure the passwords match
-	err = auth.ComparePassword(u.Password, payload.Password)
+	if !auth.ComparePassword(u.Password, []byte(payload.Password)) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid email or password"))
+		return
+	}
+
+	secret := []byte(config.Envs.JWTSecret)
+
+	token, err := auth.CreateJWT(secret, u.ID)
 
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, errors.New("Invalid username or password"))
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
 	}
+
 	// everything is good, pass a 200 status ok
-	utils.WriteJSON(w, 200, nil)
+	utils.WriteJSON(w, 200, map[string]string{"token": token})
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
