@@ -73,13 +73,13 @@ func (h *Handler) getProductById(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(productId)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	product, err := h.store.GetProductByID(id)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, http.StatusNotFound, err)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, product)

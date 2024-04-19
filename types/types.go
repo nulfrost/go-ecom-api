@@ -12,7 +12,7 @@ type UserStore interface {
 
 type ProductStore interface {
 	GetProducts() ([]Product, error)
-	CreateProduct(product Product) error
+	CreateProduct(Product) error
 	GetProductByID(id int) (*Product, error)
 }
 
